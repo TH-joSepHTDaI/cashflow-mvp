@@ -1,0 +1,38 @@
+{
+  "mcp_servers": [
+    {
+      "name": "filesystem",
+      "enabled": true,
+      "root_path": "./"
+    },
+    {
+      "name": "terminal",
+      "enabled": true,
+      "allowed_commands": [
+        "python",
+        "pytest",
+        "uvicorn",
+        "flutter",
+        "dart",
+        "git",
+        "mkdir",
+        "touch",
+        "ls",
+        "cd",
+        "cat",
+        "echo",
+        "tree"
+      ]
+    },
+    {
+      "name": "git",
+      "enabled": true,
+      "auto_commit": false
+    },
+    {
+      "name": "sqlite",
+      "enabled": true,
+      "database_path": "./backend/data/cashflow.db"
+    }
+  ]
+}

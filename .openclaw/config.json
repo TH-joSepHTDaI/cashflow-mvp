@@ -1,0 +1,53 @@
+{
+  "project_name": "cashflow-mvp",
+  "mode": "goal-driven",
+
+  "master_agent": {
+    "name": "CashflowMasterPM",
+    "prompt_file": "prompts/master_agent.md",
+    "check_interval_minutes": 5,
+    "allowed_skills": [
+      "planning",
+      "project_management",
+      "requirements_review",
+      "github_issues",
+      "documentation_review",
+      "status_update"
+    ]
+  },
+
+  "subagents": [
+    {
+      "name": "CashflowDevTester",
+      "prompt_file": "prompts/devtester_agent.md",
+      "restart_if_inactive": true,
+      "allowed_skills": [
+        "filesystem-read",
+        "filesystem-write",
+        "terminal",
+        "git",
+        "python",
+        "fastapi",
+        "pytest",
+        "sqlite",
+        "flutter",
+        "dart",
+        "documentation-update"
+      ]
+    }
+  ],
+
+  "workspace": {
+    "root": "./",
+    "status_file": "status.json",
+    "task_file": "tasks.md",
+    "decision_log": "decisions.md"
+  },
+
+  "execution_rules": {
+    "one_task_at_a_time": true,
+    "require_tests_before_done": true,
+    "require_status_update": true,
+    "allow_scope_expansion": false
+  }
+}

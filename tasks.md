@@ -1,0 +1,10 @@
+- [x] Create project skeleton
+- [x] Implement backend database setup
+- [x] Implement Transaction model
+- [x] Implement Transaction CRUD API
+- [x] Implement classification rules
+- [x] Implement Asset API
+- [x] Implement Liability API
+- [x] Implement Balance Sheet API
+- [x] Implement Monthly Cashflow API
+- [x] Implement Flutter UI

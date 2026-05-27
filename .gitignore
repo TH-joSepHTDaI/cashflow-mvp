@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flutter
+mobile/cashflow_mvp/.dart_tool/
+mobile/cashflow_mvp/.flutter-plugins
+mobile/cashflow_mvp/.flutter-plugins-dependencies
+mobile/cashflow_mvp/.packages
+mobile/cashflow_mvp/build/
+mobile/cashflow_mvp/ios/Pods/
+mobile/cashflow_mvp/ios/.symlinks/
+mobile/cashflow_mvp/android/.gradle/
+mobile/cashflow_mvp/android/app/debug/
+mobile/cashflow_mvp/android/app/profile/
+mobile/cashflow_mvp/android/app/release/
