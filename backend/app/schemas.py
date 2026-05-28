@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from datetime import date as Date
 from typing import Optional
 
 from app.models import CashflowType, AssetType, LiabilityType
@@ -67,7 +68,7 @@ class LiabilityUpdate(BaseModel):
 class TransactionBase(BaseModel):
     """Base transaction schema."""
     amount: float
-    date: str
+    date: Date
     note: Optional[str] = None
     category: str
     cashflow_type: CashflowType = CashflowType.OTHER
@@ -90,7 +91,7 @@ class TransactionRead(TransactionBase):
 class TransactionUpdate(BaseModel):
     """Schema for updating a transaction (all fields optional)."""
     amount: Optional[float] = None
-    date: Optional[str] = None
+    date: Optional[Date] = None
     note: Optional[str] = None
     category: Optional[str] = None
     cashflow_type: Optional[CashflowType] = None

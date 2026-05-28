@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 from typing import Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, date
 from collections import defaultdict
 
 from app.database import get_session
@@ -47,17 +47,27 @@ def get_cashflow_range(
             current_month = 1
             current_year += 1
     
+    # Parse date range for query
+    start_year, start_month_num = map(int, start_month.split("-"))
+    end_year, end_month_num = map(int, end_month.split("-"))
+    
+    start_date = date(start_year, start_month_num, 1)
+    if end_month_num == 12:
+        end_date = date(end_year + 1, 1, 1)
+    else:
+        end_date = date(end_year, end_month_num + 1, 1)
+    
     # Get all transactions in range
     query = select(Transaction).where(
-        Transaction.date >= f"{start_month}-01",
-        Transaction.date <= f"{end_month}-31"
+        Transaction.date >= start_date,
+        Transaction.date < end_date
     )
     transactions = session.exec(query).all()
     
     # Group by month
     monthly_data: Dict[str, List[Transaction]] = defaultdict(list)
     for t in transactions:
-        month = t.date[:7]  # Extract YYYY-MM
+        month = t.date.strftime("%Y-%m")  # Format as YYYY-MM
         monthly_data[month].append(t)
     
     # Calculate cashflow for each month (including empty months)
@@ -91,8 +101,18 @@ def get_monthly_cashflow(
             detail="Invalid date format. Use YYYY-MM (e.g., 2024-01)"
         )
     
-    # Get transactions for the month
-    query = select(Transaction).where(Transaction.date.startswith(year_month))
+    # Parse year_month and filter by date range
+    year, month_num = map(int, year_month.split("-"))
+    start_date = date(year, month_num, 1)
+    if month_num == 12:
+        end_date = date(year + 1, 1, 1)
+    else:
+        end_date = date(year, month_num + 1, 1)
+    
+    query = select(Transaction).where(
+        Transaction.date >= start_date,
+        Transaction.date < end_date
+    )
     transactions = session.exec(query).all()
     
     return _calculate_cashflow(transactions, year_month)
@@ -117,7 +137,18 @@ def get_cashflow_summary(
             detail="Invalid date format. Use YYYY-MM (e.g., 2024-01)"
         )
     
-    query = select(Transaction).where(Transaction.date.startswith(month))
+    # Parse month and filter by date range
+    year, month_num = map(int, month.split("-"))
+    start_date = date(year, month_num, 1)
+    if month_num == 12:
+        end_date = date(year + 1, 1, 1)
+    else:
+        end_date = date(year, month_num + 1, 1)
+    
+    query = select(Transaction).where(
+        Transaction.date >= start_date,
+        Transaction.date < end_date
+    )
     transactions = session.exec(query).all()
     
     cashflow = _calculate_cashflow(transactions, month)
@@ -150,7 +181,18 @@ def get_cashflow_by_category(
             detail="Invalid date format. Use YYYY-MM (e.g., 2024-01)"
         )
     
-    query = select(Transaction).where(Transaction.date.startswith(year_month))
+    # Parse year_month and filter by date range
+    year, month_num = map(int, year_month.split("-"))
+    start_date = date(year, month_num, 1)
+    if month_num == 12:
+        end_date = date(year + 1, 1, 1)
+    else:
+        end_date = date(year, month_num + 1, 1)
+    
+    query = select(Transaction).where(
+        Transaction.date >= start_date,
+        Transaction.date < end_date
+    )
     transactions = session.exec(query).all()
     
     # Group by category

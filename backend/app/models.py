@@ -1,5 +1,6 @@
 from sqlmodel import SQLModel, Field
 from datetime import datetime
+from datetime import date as Date
 from typing import Optional
 from enum import Enum
 
@@ -19,7 +20,7 @@ class Transaction(SQLModel, table=True):
     
     id: Optional[int] = Field(default=None, primary_key=True)
     amount: float = Field(..., description="Transaction amount")
-    date: str = Field(..., description="Transaction date (YYYY-MM-DD)")
+    date: Date = Field(..., description="Transaction date")
     note: Optional[str] = Field(default=None, description="Transaction note/description")
     category: str = Field(..., description="Transaction category")
     cashflow_type: CashflowType = Field(default=CashflowType.OTHER, description="Type of cashflow")
