@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 from typing import List, Optional
-from datetime import date
+from datetime import date, datetime
 
 from app.database import get_session
 from app.models import Transaction
@@ -79,6 +79,9 @@ def update_transaction(
     update_data = transaction_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_transaction, key, value)
+    
+    # Update the updated_at timestamp
+    db_transaction.updated_at = datetime.utcnow()
     
     session.add(db_transaction)
     session.commit()
