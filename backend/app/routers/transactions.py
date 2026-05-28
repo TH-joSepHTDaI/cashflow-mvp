@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 from typing import List, Optional
+from datetime import date
 
 from app.database import get_session
 from app.models import Transaction
@@ -37,8 +38,18 @@ def list_transactions(
     query = select(Transaction)
     
     if month:
-        # Filter transactions where date starts with the month string
-        query = query.where(Transaction.date.startswith(month))
+        # Parse month string (YYYY-MM) and filter by date range
+        try:
+            year, month_num = map(int, month.split("-"))
+            start_date = date(year, month_num, 1)
+            # Calculate end of month
+            if month_num == 12:
+                end_date = date(year + 1, 1, 1)
+            else:
+                end_date = date(year, month_num + 1, 1)
+            query = query.where(Transaction.date >= start_date, Transaction.date < end_date)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid month format. Use YYYY-MM")
     
     transactions = session.exec(query).all()
     return transactions
