@@ -46,6 +46,9 @@ env/
 .DS_Store
 Thumbs.db
 
+# OpenClaw local state (not for git)
+OPENCLAW_STATE.md
+
 # Flutter
 mobile/cashflow_mvp/.dart_tool/
 mobile/cashflow_mvp/.flutter-plugins

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session
 from typing import List
 
 from app.database import get_session
-from app.models import Liability
 from app.schemas import LiabilityCreate, LiabilityRead, LiabilityUpdate
+from app.services import LiabilityService
 
 router = APIRouter(prefix="/api/liabilities", tags=["liabilities"])
 
@@ -12,24 +12,19 @@ router = APIRouter(prefix="/api/liabilities", tags=["liabilities"])
 @router.post("/", response_model=LiabilityRead, status_code=201)
 def create_liability(liability: LiabilityCreate, session: Session = Depends(get_session)):
     """Create a new liability."""
-    db_liability = Liability.model_validate(liability.model_dump())
-    session.add(db_liability)
-    session.commit()
-    session.refresh(db_liability)
-    return db_liability
+    return LiabilityService.create_liability(session, liability)
 
 
 @router.get("/", response_model=List[LiabilityRead])
 def list_liabilities(session: Session = Depends(get_session)):
     """List all liabilities."""
-    liabilities = session.exec(select(Liability)).all()
-    return liabilities
+    return LiabilityService.list_liabilities(session)
 
 
 @router.get("/{liability_id}", response_model=LiabilityRead)
 def get_liability(liability_id: int, session: Session = Depends(get_session)):
     """Get a liability by ID."""
-    liability = session.get(Liability, liability_id)
+    liability = LiabilityService.get_liability(session, liability_id)
     if not liability:
         raise HTTPException(status_code=404, detail="Liability not found")
     return liability
@@ -42,28 +37,16 @@ def update_liability(
     session: Session = Depends(get_session)
 ):
     """Update a liability."""
-    db_liability = session.get(Liability, liability_id)
-    if not db_liability:
+    liability = LiabilityService.update_liability(session, liability_id, liability_update)
+    if not liability:
         raise HTTPException(status_code=404, detail="Liability not found")
-    
-    # Update only provided fields
-    update_data = liability_update.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(db_liability, key, value)
-    
-    session.add(db_liability)
-    session.commit()
-    session.refresh(db_liability)
-    return db_liability
+    return liability
 
 
 @router.delete("/{liability_id}", status_code=204)
 def delete_liability(liability_id: int, session: Session = Depends(get_session)):
     """Delete a liability."""
-    liability = session.get(Liability, liability_id)
-    if not liability:
+    deleted = LiabilityService.delete_liability(session, liability_id)
+    if not deleted:
         raise HTTPException(status_code=404, detail="Liability not found")
-    
-    session.delete(liability)
-    session.commit()
     return None
