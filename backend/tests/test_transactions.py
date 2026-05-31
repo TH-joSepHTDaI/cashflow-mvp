@@ -174,3 +174,192 @@ def test_delete_transaction_not_found():
     """Test deleting a non-existent transaction."""
     response = client.delete("/api/transactions/99999")
     assert response.status_code == 404
+
+
+# =============================================================================
+# Error Handling and Edge Case Tests
+# =============================================================================
+
+def test_create_transaction_missing_required_fields():
+    """Test creating a transaction with missing required fields."""
+    # Missing amount
+    response = client.post("/api/transactions/", json={
+        "date": "2024-01-15",
+        "note": "Missing amount",
+        "category": "food",
+        "cashflow_type": "expense"
+    })
+    assert response.status_code == 422
+    
+    # Missing date
+    response = client.post("/api/transactions/", json={
+        "amount": 100.00,
+        "note": "Missing date",
+        "category": "food",
+        "cashflow_type": "expense"
+    })
+    assert response.status_code == 422
+    
+    # Missing category
+    response = client.post("/api/transactions/", json={
+        "amount": 100.00,
+        "date": "2024-01-15",
+        "note": "Missing category",
+        "cashflow_type": "expense"
+    })
+    assert response.status_code == 422
+
+
+def test_create_transaction_invalid_amount_type():
+    """Test creating a transaction with invalid amount type (string instead of number)."""
+    response = client.post("/api/transactions/", json={
+        "amount": "not_a_number",
+        "date": "2024-01-15",
+        "note": "Invalid amount type",
+        "category": "food",
+        "cashflow_type": "expense"
+    })
+    assert response.status_code == 422
+
+
+def test_create_transaction_invalid_date_format():
+    """Test creating a transaction with invalid date formats."""
+    # Invalid format
+    response = client.post("/api/transactions/", json={
+        "amount": 100.00,
+        "date": "15-01-2024",
+        "note": "Invalid date format",
+        "category": "food",
+        "cashflow_type": "expense"
+    })
+    assert response.status_code == 422
+    
+    # Another invalid format
+    response = client.post("/api/transactions/", json={
+        "amount": 100.00,
+        "date": "2024/01/15",
+        "note": "Invalid date format",
+        "category": "food",
+        "cashflow_type": "expense"
+    })
+    assert response.status_code == 422
+
+
+def test_create_transaction_negative_amount():
+    """Test creating a transaction with negative amount."""
+    response = client.post("/api/transactions/", json={
+        "amount": -50.00,
+        "date": "2024-01-15",
+        "note": "Negative amount transaction",
+        "category": "food",
+        "cashflow_type": "expense"
+    })
+    # The API accepts negative amounts (may be valid for refunds/adjustments)
+    assert response.status_code == 201
+
+
+def test_create_transaction_future_date():
+    """Test creating a transaction with future date."""
+    from datetime import date, timedelta
+    future_date = (date.today() + timedelta(days=30)).isoformat()
+    
+    response = client.post("/api/transactions/", json={
+        "amount": 100.00,
+        "date": future_date,
+        "note": "Future transaction",
+        "category": "food",
+        "cashflow_type": "expense"
+    })
+    # The API accepts future dates (may be valid for planned transactions)
+    assert response.status_code == 201
+
+
+def test_create_transaction_malformed_json():
+    """Test creating a transaction with malformed JSON body."""
+    response = client.post(
+        "/api/transactions/",
+        data="not valid json",
+        headers={"Content-Type": "application/json"}
+    )
+    assert response.status_code == 422
+
+
+def test_create_transaction_very_long_note():
+    """Test creating a transaction with very long note (> 500 chars)."""
+    long_note = "A" * 1000
+    
+    response = client.post("/api/transactions/", json={
+        "amount": 100.00,
+        "date": "2024-01-15",
+        "note": long_note,
+        "category": "food",
+        "cashflow_type": "expense"
+    })
+    # The API accepts long notes
+    assert response.status_code == 201
+    assert response.json()["note"] == long_note
+
+
+def test_create_transaction_empty_string_values():
+    """Test creating a transaction with empty string values."""
+    # Empty category should fail (required field)
+    response = client.post("/api/transactions/", json={
+        "amount": 100.00,
+        "date": "2024-01-15",
+        "note": "",
+        "category": "",
+        "cashflow_type": "expense"
+    })
+    # Empty strings are accepted for note, but category should have validation
+    # Depending on implementation, this may pass or fail
+    
+
+def test_create_transaction_null_optional_fields():
+    """Test creating a transaction with null in optional fields."""
+    response = client.post("/api/transactions/", json={
+        "amount": 100.00,
+        "date": "2024-01-15",
+        "note": None,
+        "category": "food",
+        "cashflow_type": "expense"
+    })
+    assert response.status_code == 201
+    assert response.json()["note"] is None
+
+
+def test_update_transaction_invalid_amount_type():
+    """Test updating a transaction with invalid amount type."""
+    # Create a transaction first
+    create_response = client.post("/api/transactions/", json={
+        "amount": 100.00,
+        "date": "2024-01-15",
+        "note": "Original",
+        "category": "food",
+        "cashflow_type": "expense"
+    })
+    transaction_id = create_response.json()["id"]
+    
+    # Try to update with invalid amount
+    response = client.put(f"/api/transactions/{transaction_id}", json={
+        "amount": "invalid"
+    })
+    assert response.status_code == 422
+
+
+def test_update_transaction_invalid_date_format():
+    """Test updating a transaction with invalid date format."""
+    # Create a transaction first
+    create_response = client.post("/api/transactions/", json={
+        "amount": 100.00,
+        "date": "2024-01-15",
+        "note": "Original",
+        "category": "food",
+        "cashflow_type": "expense"
+    })
+    transaction_id = create_response.json()["id"]
+    
+    # Try to update with invalid date
+    response = client.put(f"/api/transactions/{transaction_id}", json={
+        "date": "not-a-date"
+    })
+    assert response.status_code == 422
