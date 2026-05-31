@@ -5,7 +5,7 @@ from app.database import get_session
 from app.models import AssetType, LiabilityType
 from app.services import ReportService
 
-router = APIRouter(prefix="/api/balance-sheet", tags=["balance-sheet"])
+router = APIRouter(prefix="/api/v1/balance-sheet", tags=["balance-sheet"])
 
 
 @router.get("/")

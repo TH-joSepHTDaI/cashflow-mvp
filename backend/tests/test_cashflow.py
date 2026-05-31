@@ -25,7 +25,7 @@ def cleanup_transactions():
 
 def test_monthly_cashflow_empty():
     """Test monthly cashflow with no transactions."""
-    response = client.get("/api/cashflow/monthly/2024-01")
+    response = client.get("/api/v1/cashflow/monthly/2024-01")
     assert response.status_code == 200
     
     data = response.json()
@@ -39,7 +39,7 @@ def test_monthly_cashflow_empty():
 def test_monthly_cashflow_with_data():
     """Test monthly cashflow with various transaction types."""
     # Create income transaction
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 5000.00,
         "date": "2024-01-15",
         "note": "Monthly salary",
@@ -48,14 +48,14 @@ def test_monthly_cashflow_with_data():
     })
     
     # Create expense transactions
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 1000.00,
         "date": "2024-01-10",
         "note": "Rent payment",
         "category": "housing",
         "cashflow_type": "expense"
     })
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 300.00,
         "date": "2024-01-20",
         "note": "Groceries",
@@ -64,7 +64,7 @@ def test_monthly_cashflow_with_data():
     })
     
     # Create investment transaction
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 1000.00,
         "date": "2024-01-05",
         "note": "Stock purchase",
@@ -72,7 +72,7 @@ def test_monthly_cashflow_with_data():
         "cashflow_type": "investment"
     })
     
-    response = client.get("/api/cashflow/monthly/2024-01")
+    response = client.get("/api/v1/cashflow/monthly/2024-01")
     assert response.status_code == 200
     
     data = response.json()
@@ -91,7 +91,7 @@ def test_monthly_cashflow_with_data():
 
 def test_monthly_cashflow_invalid_format():
     """Test monthly cashflow with invalid date format."""
-    response = client.get("/api/cashflow/monthly/invalid")
+    response = client.get("/api/v1/cashflow/monthly/invalid")
     assert response.status_code == 400
     assert "Invalid date format" in response.json()["detail"]
 
@@ -99,28 +99,28 @@ def test_monthly_cashflow_invalid_format():
 def test_cashflow_range():
     """Test cashflow range endpoint."""
     # Create transactions for multiple months
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 5000.00,
         "date": "2024-01-15",
         "note": "January salary",
         "category": "salary",
         "cashflow_type": "income"
     })
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 2000.00,
         "date": "2024-01-20",
         "note": "January rent",
         "category": "housing",
         "cashflow_type": "expense"
     })
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 5500.00,
         "date": "2024-02-15",
         "note": "February salary",
         "category": "salary",
         "cashflow_type": "income"
     })
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 2000.00,
         "date": "2024-02-20",
         "note": "February rent",
@@ -128,7 +128,7 @@ def test_cashflow_range():
         "cashflow_type": "expense"
     })
     
-    response = client.get("/api/cashflow/monthly/range?start_month=2024-01&end_month=2024-02")
+    response = client.get("/api/v1/cashflow/monthly/range?start_month=2024-01&end_month=2024-02")
     assert response.status_code == 200
     
     data = response.json()
@@ -146,7 +146,7 @@ def test_cashflow_range():
 
 def test_cashflow_range_invalid_order():
     """Test cashflow range with invalid month order."""
-    response = client.get("/api/cashflow/monthly/range?start_month=2024-03&end_month=2024-01")
+    response = client.get("/api/v1/cashflow/monthly/range?start_month=2024-03&end_month=2024-01")
     assert response.status_code == 400
     assert "Start month must be before" in response.json()["detail"]
 
@@ -154,14 +154,14 @@ def test_cashflow_range_invalid_order():
 def test_cashflow_summary():
     """Test cashflow summary endpoint."""
     # Create transactions
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 6000.00,
         "date": "2024-03-15",
         "note": "Salary",
         "category": "salary",
         "cashflow_type": "income"
     })
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 500.00,
         "date": "2024-03-10",
         "note": "Credit card payment",
@@ -169,7 +169,7 @@ def test_cashflow_summary():
         "cashflow_type": "liability_repayment"
     })
     
-    response = client.get("/api/cashflow/summary?month=2024-03")
+    response = client.get("/api/v1/cashflow/summary?month=2024-03")
     assert response.status_code == 200
     
     data = response.json()
@@ -183,28 +183,28 @@ def test_cashflow_summary():
 def test_cashflow_by_category():
     """Test cashflow grouped by category."""
     # Create transactions in different categories
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 5000.00,
         "date": "2024-04-15",
         "note": "Salary",
         "category": "salary",
         "cashflow_type": "income"
     })
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 2000.00,
         "date": "2024-04-01",
         "note": "Rent",
         "category": "housing",
         "cashflow_type": "expense"
     })
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 150.00,
         "date": "2024-04-10",
         "note": "Dinner",
         "category": "food",
         "cashflow_type": "expense"
     })
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 80.00,
         "date": "2024-04-12",
         "note": "Lunch",
@@ -212,7 +212,7 @@ def test_cashflow_by_category():
         "cashflow_type": "expense"
     })
     
-    response = client.get("/api/cashflow/by-category/2024-04")
+    response = client.get("/api/v1/cashflow/by-category/2024-04")
     assert response.status_code == 200
     
     data = response.json()
@@ -229,14 +229,14 @@ def test_cashflow_by_category():
 def test_cashflow_filters_by_month():
     """Test that cashflow only includes transactions from specified month."""
     # Create transactions in different months
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 1000.00,
         "date": "2024-05-15",
         "note": "May transaction",
         "category": "test",
         "cashflow_type": "income"
     })
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 2000.00,
         "date": "2024-06-15",
         "note": "June transaction",
@@ -245,14 +245,14 @@ def test_cashflow_filters_by_month():
     })
     
     # Query May
-    response = client.get("/api/cashflow/monthly/2024-05")
+    response = client.get("/api/v1/cashflow/monthly/2024-05")
     assert response.status_code == 200
     data = response.json()
     assert data["summary"]["total_income"] == 1000.00
     assert data["summary"]["transaction_count"] == 1
     
     # Query June
-    response = client.get("/api/cashflow/monthly/2024-06")
+    response = client.get("/api/v1/cashflow/monthly/2024-06")
     assert response.status_code == 200
     data = response.json()
     assert data["summary"]["total_income"] == 2000.00
@@ -261,14 +261,14 @@ def test_cashflow_filters_by_month():
 
 def test_cashflow_negative_net():
     """Test cashflow when expenses exceed income."""
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 2000.00,
         "date": "2024-07-15",
         "note": "Small income",
         "category": "salary",
         "cashflow_type": "income"
     })
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 3000.00,
         "date": "2024-07-10",
         "note": "Big expense",
@@ -276,7 +276,7 @@ def test_cashflow_negative_net():
         "cashflow_type": "expense"
     })
     
-    response = client.get("/api/cashflow/monthly/2024-07")
+    response = client.get("/api/v1/cashflow/monthly/2024-07")
     assert response.status_code == 200
     data = response.json()
     assert data["summary"]["net_cashflow"] == -1000.00

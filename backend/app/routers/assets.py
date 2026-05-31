@@ -6,7 +6,7 @@ from app.database import get_session
 from app.schemas import AssetCreate, AssetRead, AssetUpdate
 from app.services import AssetService
 
-router = APIRouter(prefix="/api/assets", tags=["assets"])
+router = APIRouter(prefix="/api/v1/assets", tags=["assets"])
 
 
 @router.post("/", response_model=AssetRead, status_code=201)

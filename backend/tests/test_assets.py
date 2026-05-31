@@ -25,7 +25,7 @@ def cleanup_assets():
 
 def test_create_asset():
     """Test creating an asset."""
-    response = client.post("/api/assets/", json={
+    response = client.post("/api/v1/assets/", json={
         "name": "Savings Account",
         "asset_type": "bank_deposit",
         "value": 10000.00
@@ -45,7 +45,7 @@ def test_create_asset_with_different_types():
     asset_types = ["cash", "bank_deposit", "fund_etf_stock", "property", "other"]
     
     for i, asset_type in enumerate(asset_types):
-        response = client.post("/api/assets/", json={
+        response = client.post("/api/v1/assets/", json={
             "name": f"Asset {i}",
             "asset_type": asset_type,
             "value": 1000.00 * (i + 1)
@@ -57,18 +57,18 @@ def test_create_asset_with_different_types():
 def test_list_assets():
     """Test listing assets."""
     # Create assets
-    client.post("/api/assets/", json={
+    client.post("/api/v1/assets/", json={
         "name": "Cash Wallet",
         "asset_type": "cash",
         "value": 500.00
     })
-    client.post("/api/assets/", json={
+    client.post("/api/v1/assets/", json={
         "name": "Stock Portfolio",
         "asset_type": "fund_etf_stock",
         "value": 50000.00
     })
     
-    response = client.get("/api/assets/")
+    response = client.get("/api/v1/assets/")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -78,7 +78,7 @@ def test_list_assets():
 def test_get_asset():
     """Test getting a specific asset."""
     # Create an asset
-    create_response = client.post("/api/assets/", json={
+    create_response = client.post("/api/v1/assets/", json={
         "name": "Property",
         "asset_type": "property",
         "value": 300000.00
@@ -86,7 +86,7 @@ def test_get_asset():
     asset_id = create_response.json()["id"]
     
     # Get the asset
-    response = client.get(f"/api/assets/{asset_id}")
+    response = client.get(f"/api/v1/assets/{asset_id}")
     assert response.status_code == 200
     data = response.json()
     assert data["id"] == asset_id
@@ -96,7 +96,7 @@ def test_get_asset():
 
 def test_get_asset_not_found():
     """Test getting a non-existent asset."""
-    response = client.get("/api/assets/99999")
+    response = client.get("/api/v1/assets/99999")
     assert response.status_code == 404
     assert response.json()["detail"] == "Asset not found"
 
@@ -104,7 +104,7 @@ def test_get_asset_not_found():
 def test_update_asset():
     """Test updating an asset."""
     # Create an asset
-    create_response = client.post("/api/assets/", json={
+    create_response = client.post("/api/v1/assets/", json={
         "name": "Original Name",
         "asset_type": "cash",
         "value": 1000.00
@@ -112,7 +112,7 @@ def test_update_asset():
     asset_id = create_response.json()["id"]
     
     # Update the asset
-    response = client.put(f"/api/assets/{asset_id}", json={
+    response = client.put(f"/api/v1/assets/{asset_id}", json={
         "name": "Updated Name",
         "value": 2000.00
     })
@@ -126,7 +126,7 @@ def test_update_asset():
 
 def test_update_asset_not_found():
     """Test updating a non-existent asset."""
-    response = client.put("/api/assets/99999", json={
+    response = client.put("/api/v1/assets/99999", json={
         "name": "New Name"
     })
     assert response.status_code == 404
@@ -135,7 +135,7 @@ def test_update_asset_not_found():
 def test_delete_asset():
     """Test deleting an asset."""
     # Create an asset
-    create_response = client.post("/api/assets/", json={
+    create_response = client.post("/api/v1/assets/", json={
         "name": "To Be Deleted",
         "asset_type": "other",
         "value": 100.00
@@ -143,23 +143,23 @@ def test_delete_asset():
     asset_id = create_response.json()["id"]
     
     # Delete the asset
-    response = client.delete(f"/api/assets/{asset_id}")
+    response = client.delete(f"/api/v1/assets/{asset_id}")
     assert response.status_code == 204
     
     # Verify it's deleted
-    get_response = client.get(f"/api/assets/{asset_id}")
+    get_response = client.get(f"/api/v1/assets/{asset_id}")
     assert get_response.status_code == 404
 
 
 def test_delete_asset_not_found():
     """Test deleting a non-existent asset."""
-    response = client.delete("/api/assets/99999")
+    response = client.delete("/api/v1/assets/99999")
     assert response.status_code == 404
 
 
 def test_asset_value_can_be_zero():
     """Test that asset value can be zero."""
-    response = client.post("/api/assets/", json={
+    response = client.post("/api/v1/assets/", json={
         "name": "Empty Account",
         "asset_type": "bank_deposit",
         "value": 0.00
@@ -170,7 +170,7 @@ def test_asset_value_can_be_zero():
 
 def test_asset_value_can_be_negative():
     """Test that asset value can be negative (for tracking losses)."""
-    response = client.post("/api/assets/", json={
+    response = client.post("/api/v1/assets/", json={
         "name": "Loss Asset",
         "asset_type": "fund_etf_stock",
         "value": -500.00
@@ -186,21 +186,21 @@ def test_asset_value_can_be_negative():
 def test_create_asset_missing_required_fields():
     """Test creating an asset with missing required fields."""
     # Missing name
-    response = client.post("/api/assets/", json={
+    response = client.post("/api/v1/assets/", json={
         "asset_type": "cash",
         "value": 1000.00
     })
     assert response.status_code == 422
     
     # Missing asset_type
-    response = client.post("/api/assets/", json={
+    response = client.post("/api/v1/assets/", json={
         "name": "Test Asset",
         "value": 1000.00
     })
     assert response.status_code == 422
     
     # Missing value
-    response = client.post("/api/assets/", json={
+    response = client.post("/api/v1/assets/", json={
         "name": "Test Asset",
         "asset_type": "cash"
     })
@@ -209,7 +209,7 @@ def test_create_asset_missing_required_fields():
 
 def test_create_asset_invalid_asset_type():
     """Test creating an asset with invalid asset_type value."""
-    response = client.post("/api/assets/", json={
+    response = client.post("/api/v1/assets/", json={
         "name": "Invalid Asset",
         "asset_type": "not_a_valid_type",
         "value": 1000.00
@@ -219,7 +219,7 @@ def test_create_asset_invalid_asset_type():
 
 def test_create_asset_non_numeric_value():
     """Test creating an asset with non-numeric value."""
-    response = client.post("/api/assets/", json={
+    response = client.post("/api/v1/assets/", json={
         "name": "Invalid Asset",
         "asset_type": "cash",
         "value": "not_a_number"
@@ -229,7 +229,7 @@ def test_create_asset_non_numeric_value():
 
 def test_create_asset_negative_value():
     """Test creating an asset with negative value."""
-    response = client.post("/api/assets/", json={
+    response = client.post("/api/v1/assets/", json={
         "name": "Negative Asset",
         "asset_type": "cash",
         "value": -1000.00
@@ -240,7 +240,7 @@ def test_create_asset_negative_value():
 
 def test_create_asset_empty_string_values():
     """Test creating an asset with empty string values."""
-    response = client.post("/api/assets/", json={
+    response = client.post("/api/v1/assets/", json={
         "name": "",
         "asset_type": "cash",
         "value": 1000.00
@@ -251,7 +251,7 @@ def test_create_asset_empty_string_values():
 def test_update_asset_invalid_asset_type():
     """Test updating an asset with invalid asset_type."""
     # Create an asset first
-    create_response = client.post("/api/assets/", json={
+    create_response = client.post("/api/v1/assets/", json={
         "name": "Test Asset",
         "asset_type": "cash",
         "value": 1000.00
@@ -259,7 +259,7 @@ def test_update_asset_invalid_asset_type():
     asset_id = create_response.json()["id"]
     
     # Try to update with invalid type
-    response = client.put(f"/api/assets/{asset_id}", json={
+    response = client.put(f"/api/v1/assets/{asset_id}", json={
         "asset_type": "invalid_type"
     })
     assert response.status_code == 422
@@ -268,7 +268,7 @@ def test_update_asset_invalid_asset_type():
 def test_update_asset_non_numeric_value():
     """Test updating an asset with non-numeric value."""
     # Create an asset first
-    create_response = client.post("/api/assets/", json={
+    create_response = client.post("/api/v1/assets/", json={
         "name": "Test Asset",
         "asset_type": "cash",
         "value": 1000.00
@@ -276,7 +276,7 @@ def test_update_asset_non_numeric_value():
     asset_id = create_response.json()["id"]
     
     # Try to update with invalid value
-    response = client.put(f"/api/assets/{asset_id}", json={
+    response = client.put(f"/api/v1/assets/{asset_id}", json={
         "value": "not_a_number"
     })
     assert response.status_code == 422
