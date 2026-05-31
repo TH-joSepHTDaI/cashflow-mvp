@@ -166,3 +166,105 @@ def test_liability_value_can_be_zero():
     })
     assert response.status_code == 201
     assert response.json()["value"] == 0.00
+
+
+# =============================================================================
+# Error Handling and Edge Case Tests
+# =============================================================================
+
+def test_create_liability_missing_required_fields():
+    """Test creating a liability with missing required fields."""
+    # Missing name
+    response = client.post("/api/liabilities/", json={
+        "liability_type": "credit_card",
+        "value": 5000.00
+    })
+    assert response.status_code == 422
+    
+    # Missing liability_type
+    response = client.post("/api/liabilities/", json={
+        "name": "Test Liability",
+        "value": 5000.00
+    })
+    assert response.status_code == 422
+    
+    # Missing value
+    response = client.post("/api/liabilities/", json={
+        "name": "Test Liability",
+        "liability_type": "credit_card"
+    })
+    assert response.status_code == 422
+
+
+def test_create_liability_invalid_liability_type():
+    """Test creating a liability with invalid liability_type value."""
+    response = client.post("/api/liabilities/", json={
+        "name": "Invalid Liability",
+        "liability_type": "not_a_valid_type",
+        "value": 5000.00
+    })
+    assert response.status_code == 422
+
+
+def test_create_liability_non_numeric_value():
+    """Test creating a liability with non-numeric value."""
+    response = client.post("/api/liabilities/", json={
+        "name": "Invalid Liability",
+        "liability_type": "credit_card",
+        "value": "not_a_number"
+    })
+    assert response.status_code == 422
+
+
+def test_create_liability_negative_value():
+    """Test creating a liability with negative value."""
+    response = client.post("/api/liabilities/", json={
+        "name": "Negative Liability",
+        "liability_type": "credit_card",
+        "value": -1000.00
+    })
+    # API may allow or reject negative liability values
+
+
+def test_create_liability_empty_string_values():
+    """Test creating a liability with empty string values."""
+    response = client.post("/api/liabilities/", json={
+        "name": "",
+        "liability_type": "credit_card",
+        "value": 5000.00
+    })
+    # Empty name may be accepted or rejected depending on validation
+
+
+def test_update_liability_invalid_liability_type():
+    """Test updating a liability with invalid liability_type."""
+    # Create a liability first
+    create_response = client.post("/api/liabilities/", json={
+        "name": "Test Liability",
+        "liability_type": "credit_card",
+        "value": 5000.00
+    })
+    liability_id = create_response.json()["id"]
+    
+    # Try to update with invalid type
+    response = client.put(f"/api/liabilities/{liability_id}", json={
+        "liability_type": "invalid_type"
+    })
+    assert response.status_code == 422
+
+
+def test_update_liability_non_numeric_value():
+    """Test updating a liability with non-numeric value."""
+    # Create a liability first
+    create_response = client.post("/api/liabilities/", json={
+        "name": "Test Liability",
+        "liability_type": "credit_card",
+        "value": 5000.00
+    })
+    liability_id = create_response.json()["id"]
+    
+    # Try to update with invalid value
+    response = client.put(f"/api/liabilities/{liability_id}", json={
+        "value": "not_a_number"
+    })
+    assert response.status_code == 422

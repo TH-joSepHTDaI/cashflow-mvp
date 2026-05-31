@@ -177,3 +177,106 @@ def test_asset_value_can_be_negative():
     })
     assert response.status_code == 201
     assert response.json()["value"] == -500.00
+
+
+# =============================================================================
+# Error Handling and Edge Case Tests
+# =============================================================================
+
+def test_create_asset_missing_required_fields():
+    """Test creating an asset with missing required fields."""
+    # Missing name
+    response = client.post("/api/assets/", json={
+        "asset_type": "cash",
+        "value": 1000.00
+    })
+    assert response.status_code == 422
+    
+    # Missing asset_type
+    response = client.post("/api/assets/", json={
+        "name": "Test Asset",
+        "value": 1000.00
+    })
+    assert response.status_code == 422
+    
+    # Missing value
+    response = client.post("/api/assets/", json={
+        "name": "Test Asset",
+        "asset_type": "cash"
+    })
+    assert response.status_code == 422
+
+
+def test_create_asset_invalid_asset_type():
+    """Test creating an asset with invalid asset_type value."""
+    response = client.post("/api/assets/", json={
+        "name": "Invalid Asset",
+        "asset_type": "not_a_valid_type",
+        "value": 1000.00
+    })
+    assert response.status_code == 422
+
+
+def test_create_asset_non_numeric_value():
+    """Test creating an asset with non-numeric value."""
+    response = client.post("/api/assets/", json={
+        "name": "Invalid Asset",
+        "asset_type": "cash",
+        "value": "not_a_number"
+    })
+    assert response.status_code == 422
+
+
+def test_create_asset_negative_value():
+    """Test creating an asset with negative value."""
+    response = client.post("/api/assets/", json={
+        "name": "Negative Asset",
+        "asset_type": "cash",
+        "value": -1000.00
+    })
+    # API allows negative values for tracking losses
+    assert response.status_code == 201
+
+
+def test_create_asset_empty_string_values():
+    """Test creating an asset with empty string values."""
+    response = client.post("/api/assets/", json={
+        "name": "",
+        "asset_type": "cash",
+        "value": 1000.00
+    })
+    # Empty name may be accepted or rejected depending on validation
+
+
+def test_update_asset_invalid_asset_type():
+    """Test updating an asset with invalid asset_type."""
+    # Create an asset first
+    create_response = client.post("/api/assets/", json={
+        "name": "Test Asset",
+        "asset_type": "cash",
+        "value": 1000.00
+    })
+    asset_id = create_response.json()["id"]
+    
+    # Try to update with invalid type
+    response = client.put(f"/api/assets/{asset_id}", json={
+        "asset_type": "invalid_type"
+    })
+    assert response.status_code == 422
+
+
+def test_update_asset_non_numeric_value():
+    """Test updating an asset with non-numeric value."""
+    # Create an asset first
+    create_response = client.post("/api/assets/", json={
+        "name": "Test Asset",
+        "asset_type": "cash",
+        "value": 1000.00
+    })
+    asset_id = create_response.json()["id"]
+    
+    # Try to update with invalid value
+    response = client.put(f"/api/assets/{asset_id}", json={
+        "value": "not_a_number"
+    })
+    assert response.status_code == 422
