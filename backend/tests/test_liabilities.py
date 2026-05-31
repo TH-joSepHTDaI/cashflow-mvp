@@ -25,7 +25,7 @@ def cleanup_liabilities():
 
 def test_create_liability():
     """Test creating a liability."""
-    response = client.post("/api/liabilities/", json={
+    response = client.post("/api/v1/liabilities/", json={
         "name": "Credit Card Debt",
         "liability_type": "credit_card",
         "value": 5000.00
@@ -45,7 +45,7 @@ def test_create_liability_with_different_types():
     liability_types = ["credit_card", "mortgage", "car_loan", "consumer_loan", "other"]
     
     for i, liability_type in enumerate(liability_types):
-        response = client.post("/api/liabilities/", json={
+        response = client.post("/api/v1/liabilities/", json={
             "name": f"Liability {i}",
             "liability_type": liability_type,
             "value": 1000.00 * (i + 1)
@@ -57,18 +57,18 @@ def test_create_liability_with_different_types():
 def test_list_liabilities():
     """Test listing liabilities."""
     # Create liabilities
-    client.post("/api/liabilities/", json={
+    client.post("/api/v1/liabilities/", json={
         "name": "Credit Card",
         "liability_type": "credit_card",
         "value": 2000.00
     })
-    client.post("/api/liabilities/", json={
+    client.post("/api/v1/liabilities/", json={
         "name": "Home Mortgage",
         "liability_type": "mortgage",
         "value": 300000.00
     })
     
-    response = client.get("/api/liabilities/")
+    response = client.get("/api/v1/liabilities/")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -78,7 +78,7 @@ def test_list_liabilities():
 def test_get_liability():
     """Test getting a specific liability."""
     # Create a liability
-    create_response = client.post("/api/liabilities/", json={
+    create_response = client.post("/api/v1/liabilities/", json={
         "name": "Car Loan",
         "liability_type": "car_loan",
         "value": 25000.00
@@ -86,7 +86,7 @@ def test_get_liability():
     liability_id = create_response.json()["id"]
     
     # Get the liability
-    response = client.get(f"/api/liabilities/{liability_id}")
+    response = client.get(f"/api/v1/liabilities/{liability_id}")
     assert response.status_code == 200
     data = response.json()
     assert data["id"] == liability_id
@@ -96,7 +96,7 @@ def test_get_liability():
 
 def test_get_liability_not_found():
     """Test getting a non-existent liability."""
-    response = client.get("/api/liabilities/99999")
+    response = client.get("/api/v1/liabilities/99999")
     assert response.status_code == 404
     assert response.json()["detail"] == "Liability not found"
 
@@ -104,7 +104,7 @@ def test_get_liability_not_found():
 def test_update_liability():
     """Test updating a liability."""
     # Create a liability
-    create_response = client.post("/api/liabilities/", json={
+    create_response = client.post("/api/v1/liabilities/", json={
         "name": "Original Liability",
         "liability_type": "consumer_loan",
         "value": 10000.00
@@ -112,7 +112,7 @@ def test_update_liability():
     liability_id = create_response.json()["id"]
     
     # Update the liability
-    response = client.put(f"/api/liabilities/{liability_id}", json={
+    response = client.put(f"/api/v1/liabilities/{liability_id}", json={
         "name": "Updated Liability",
         "value": 8000.00
     })
@@ -126,7 +126,7 @@ def test_update_liability():
 
 def test_update_liability_not_found():
     """Test updating a non-existent liability."""
-    response = client.put("/api/liabilities/99999", json={
+    response = client.put("/api/v1/liabilities/99999", json={
         "name": "New Name"
     })
     assert response.status_code == 404
@@ -135,7 +135,7 @@ def test_update_liability_not_found():
 def test_delete_liability():
     """Test deleting a liability."""
     # Create a liability
-    create_response = client.post("/api/liabilities/", json={
+    create_response = client.post("/api/v1/liabilities/", json={
         "name": "To Be Deleted",
         "liability_type": "other",
         "value": 500.00
@@ -143,23 +143,23 @@ def test_delete_liability():
     liability_id = create_response.json()["id"]
     
     # Delete the liability
-    response = client.delete(f"/api/liabilities/{liability_id}")
+    response = client.delete(f"/api/v1/liabilities/{liability_id}")
     assert response.status_code == 204
     
     # Verify it's deleted
-    get_response = client.get(f"/api/liabilities/{liability_id}")
+    get_response = client.get(f"/api/v1/liabilities/{liability_id}")
     assert get_response.status_code == 404
 
 
 def test_delete_liability_not_found():
     """Test deleting a non-existent liability."""
-    response = client.delete("/api/liabilities/99999")
+    response = client.delete("/api/v1/liabilities/99999")
     assert response.status_code == 404
 
 
 def test_liability_value_can_be_zero():
     """Test that liability value can be zero (paid off)."""
-    response = client.post("/api/liabilities/", json={
+    response = client.post("/api/v1/liabilities/", json={
         "name": "Paid Off Loan",
         "liability_type": "consumer_loan",
         "value": 0.00
@@ -175,21 +175,21 @@ def test_liability_value_can_be_zero():
 def test_create_liability_missing_required_fields():
     """Test creating a liability with missing required fields."""
     # Missing name
-    response = client.post("/api/liabilities/", json={
+    response = client.post("/api/v1/liabilities/", json={
         "liability_type": "credit_card",
         "value": 5000.00
     })
     assert response.status_code == 422
     
     # Missing liability_type
-    response = client.post("/api/liabilities/", json={
+    response = client.post("/api/v1/liabilities/", json={
         "name": "Test Liability",
         "value": 5000.00
     })
     assert response.status_code == 422
     
     # Missing value
-    response = client.post("/api/liabilities/", json={
+    response = client.post("/api/v1/liabilities/", json={
         "name": "Test Liability",
         "liability_type": "credit_card"
     })
@@ -198,7 +198,7 @@ def test_create_liability_missing_required_fields():
 
 def test_create_liability_invalid_liability_type():
     """Test creating a liability with invalid liability_type value."""
-    response = client.post("/api/liabilities/", json={
+    response = client.post("/api/v1/liabilities/", json={
         "name": "Invalid Liability",
         "liability_type": "not_a_valid_type",
         "value": 5000.00
@@ -208,7 +208,7 @@ def test_create_liability_invalid_liability_type():
 
 def test_create_liability_non_numeric_value():
     """Test creating a liability with non-numeric value."""
-    response = client.post("/api/liabilities/", json={
+    response = client.post("/api/v1/liabilities/", json={
         "name": "Invalid Liability",
         "liability_type": "credit_card",
         "value": "not_a_number"
@@ -218,7 +218,7 @@ def test_create_liability_non_numeric_value():
 
 def test_create_liability_negative_value():
     """Test creating a liability with negative value."""
-    response = client.post("/api/liabilities/", json={
+    response = client.post("/api/v1/liabilities/", json={
         "name": "Negative Liability",
         "liability_type": "credit_card",
         "value": -1000.00
@@ -228,7 +228,7 @@ def test_create_liability_negative_value():
 
 def test_create_liability_empty_string_values():
     """Test creating a liability with empty string values."""
-    response = client.post("/api/liabilities/", json={
+    response = client.post("/api/v1/liabilities/", json={
         "name": "",
         "liability_type": "credit_card",
         "value": 5000.00
@@ -239,7 +239,7 @@ def test_create_liability_empty_string_values():
 def test_update_liability_invalid_liability_type():
     """Test updating a liability with invalid liability_type."""
     # Create a liability first
-    create_response = client.post("/api/liabilities/", json={
+    create_response = client.post("/api/v1/liabilities/", json={
         "name": "Test Liability",
         "liability_type": "credit_card",
         "value": 5000.00
@@ -247,7 +247,7 @@ def test_update_liability_invalid_liability_type():
     liability_id = create_response.json()["id"]
     
     # Try to update with invalid type
-    response = client.put(f"/api/liabilities/{liability_id}", json={
+    response = client.put(f"/api/v1/liabilities/{liability_id}", json={
         "liability_type": "invalid_type"
     })
     assert response.status_code == 422
@@ -256,7 +256,7 @@ def test_update_liability_invalid_liability_type():
 def test_update_liability_non_numeric_value():
     """Test updating a liability with non-numeric value."""
     # Create a liability first
-    create_response = client.post("/api/liabilities/", json={
+    create_response = client.post("/api/v1/liabilities/", json={
         "name": "Test Liability",
         "liability_type": "credit_card",
         "value": 5000.00
@@ -264,7 +264,7 @@ def test_update_liability_non_numeric_value():
     liability_id = create_response.json()["id"]
     
     # Try to update with invalid value
-    response = client.put(f"/api/liabilities/{liability_id}", json={
+    response = client.put(f"/api/v1/liabilities/{liability_id}", json={
         "value": "not_a_number"
     })
     assert response.status_code == 422

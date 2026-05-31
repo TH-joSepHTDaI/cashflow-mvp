@@ -29,7 +29,7 @@ def cleanup_database():
 
 def test_balance_sheet_empty():
     """Test balance sheet with no assets or liabilities."""
-    response = client.get("/api/balance-sheet/")
+    response = client.get("/api/v1/balance-sheet/")
     assert response.status_code == 200
     
     data = response.json()
@@ -43,35 +43,35 @@ def test_balance_sheet_empty():
 def test_balance_sheet_with_data():
     """Test balance sheet with assets and liabilities."""
     # Create assets
-    client.post("/api/assets/", json={
+    client.post("/api/v1/assets/", json={
         "name": "Cash Wallet",
         "asset_type": "cash",
         "value": 1000.00
     })
-    client.post("/api/assets/", json={
+    client.post("/api/v1/assets/", json={
         "name": "Savings Account",
         "asset_type": "bank_deposit",
         "value": 5000.00
     })
-    client.post("/api/assets/", json={
+    client.post("/api/v1/assets/", json={
         "name": "Stock Portfolio",
         "asset_type": "fund_etf_stock",
         "value": 10000.00
     })
     
     # Create liabilities
-    client.post("/api/liabilities/", json={
+    client.post("/api/v1/liabilities/", json={
         "name": "Credit Card",
         "liability_type": "credit_card",
         "value": 500.00
     })
-    client.post("/api/liabilities/", json={
+    client.post("/api/v1/liabilities/", json={
         "name": "Car Loan",
         "liability_type": "car_loan",
         "value": 10000.00
     })
     
-    response = client.get("/api/balance-sheet/")
+    response = client.get("/api/v1/balance-sheet/")
     assert response.status_code == 200
     
     data = response.json()
@@ -98,18 +98,18 @@ def test_balance_sheet_with_data():
 def test_balance_sheet_summary():
     """Test balance sheet summary endpoint."""
     # Create some data
-    client.post("/api/assets/", json={
+    client.post("/api/v1/assets/", json={
         "name": "Property",
         "asset_type": "property",
         "value": 300000.00
     })
-    client.post("/api/liabilities/", json={
+    client.post("/api/v1/liabilities/", json={
         "name": "Mortgage",
         "liability_type": "mortgage",
         "value": 200000.00
     })
     
-    response = client.get("/api/balance-sheet/summary")
+    response = client.get("/api/v1/balance-sheet/summary")
     assert response.status_code == 200
     
     data = response.json()
@@ -124,20 +124,20 @@ def test_balance_sheet_summary():
 def test_balance_sheet_negative_net_worth():
     """Test balance sheet when liabilities exceed assets."""
     # Create small asset
-    client.post("/api/assets/", json={
+    client.post("/api/v1/assets/", json={
         "name": "Small Savings",
         "asset_type": "cash",
         "value": 1000.00
     })
     
     # Create large liability
-    client.post("/api/liabilities/", json={
+    client.post("/api/v1/liabilities/", json={
         "name": "Big Loan",
         "liability_type": "consumer_loan",
         "value": 5000.00
     })
     
-    response = client.get("/api/balance-sheet/")
+    response = client.get("/api/v1/balance-sheet/")
     assert response.status_code == 200
     
     data = response.json()
@@ -149,25 +149,25 @@ def test_balance_sheet_negative_net_worth():
 def test_assets_by_type():
     """Test getting assets by type."""
     # Create multiple cash assets
-    client.post("/api/assets/", json={
+    client.post("/api/v1/assets/", json={
         "name": "Cash in Wallet",
         "asset_type": "cash",
         "value": 200.00
     })
-    client.post("/api/assets/", json={
+    client.post("/api/v1/assets/", json={
         "name": "Emergency Cash",
         "asset_type": "cash",
         "value": 500.00
     })
     
     # Create a different type
-    client.post("/api/assets/", json={
+    client.post("/api/v1/assets/", json={
         "name": "Stocks",
         "asset_type": "fund_etf_stock",
         "value": 10000.00
     })
     
-    response = client.get("/api/balance-sheet/assets/by-type/cash")
+    response = client.get("/api/v1/balance-sheet/assets/by-type/cash")
     assert response.status_code == 200
     
     data = response.json()
@@ -179,7 +179,7 @@ def test_assets_by_type():
 
 def test_assets_by_type_invalid():
     """Test getting assets by invalid type."""
-    response = client.get("/api/balance-sheet/assets/by-type/invalid_type")
+    response = client.get("/api/v1/balance-sheet/assets/by-type/invalid_type")
     assert response.status_code == 400
     assert "Invalid asset type" in response.json()["detail"]
 
@@ -187,18 +187,18 @@ def test_assets_by_type_invalid():
 def test_liabilities_by_type():
     """Test getting liabilities by type."""
     # Create multiple credit card liabilities
-    client.post("/api/liabilities/", json={
+    client.post("/api/v1/liabilities/", json={
         "name": "Visa Card",
         "liability_type": "credit_card",
         "value": 1000.00
     })
-    client.post("/api/liabilities/", json={
+    client.post("/api/v1/liabilities/", json={
         "name": "Mastercard",
         "liability_type": "credit_card",
         "value": 500.00
     })
     
-    response = client.get("/api/balance-sheet/liabilities/by-type/credit_card")
+    response = client.get("/api/v1/balance-sheet/liabilities/by-type/credit_card")
     assert response.status_code == 200
     
     data = response.json()
@@ -210,7 +210,7 @@ def test_liabilities_by_type():
 
 def test_liabilities_by_type_invalid():
     """Test getting liabilities by invalid type."""
-    response = client.get("/api/balance-sheet/liabilities/by-type/invalid_type")
+    response = client.get("/api/v1/balance-sheet/liabilities/by-type/invalid_type")
     assert response.status_code == 400
     assert "Invalid liability type" in response.json()["detail"]
 
@@ -218,13 +218,13 @@ def test_liabilities_by_type_invalid():
 def test_balance_sheet_decimal_rounding():
     """Test that decimal values are properly rounded."""
     # Create asset with decimal
-    client.post("/api/assets/", json={
+    client.post("/api/v1/assets/", json={
         "name": "Precise Asset",
         "asset_type": "cash",
         "value": 1000.999
     })
     
-    response = client.get("/api/balance-sheet/summary")
+    response = client.get("/api/v1/balance-sheet/summary")
     assert response.status_code == 200
     
     data = response.json()

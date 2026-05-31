@@ -103,7 +103,7 @@ class TestAPIClassificationIntegration:
         client = TestClient(app)
         
         # Create transaction without specifying cashflow_type
-        response = client.post("/api/transactions/", json={
+        response = client.post("/api/v1/transactions/", json={
             "amount": 5000.00,
             "date": "2024-01-15",
             "note": "Monthly salary",
@@ -122,7 +122,7 @@ class TestAPIClassificationIntegration:
         
         client = TestClient(app)
         
-        response = client.post("/api/transactions/", json={
+        response = client.post("/api/v1/transactions/", json={
             "amount": 50.00,
             "date": "2024-01-15",
             "note": "Restaurant lunch",
@@ -140,7 +140,7 @@ class TestAPIClassificationIntegration:
         
         client = TestClient(app)
         
-        response = client.post("/api/transactions/", json={
+        response = client.post("/api/v1/transactions/", json={
             "amount": 1000.00,
             "date": "2024-01-15",
             "note": "ETF purchase",

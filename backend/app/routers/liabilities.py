@@ -6,7 +6,7 @@ from app.database import get_session
 from app.schemas import LiabilityCreate, LiabilityRead, LiabilityUpdate
 from app.services import LiabilityService
 
-router = APIRouter(prefix="/api/liabilities", tags=["liabilities"])
+router = APIRouter(prefix="/api/v1/liabilities", tags=["liabilities"])
 
 
 @router.post("/", response_model=LiabilityRead, status_code=201)

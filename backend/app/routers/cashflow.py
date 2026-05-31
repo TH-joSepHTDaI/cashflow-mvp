@@ -5,7 +5,7 @@ from typing import Optional
 from app.database import get_session
 from app.services import ReportService
 
-router = APIRouter(prefix="/api/cashflow", tags=["cashflow"])
+router = APIRouter(prefix="/api/v1/cashflow", tags=["cashflow"])
 
 
 @router.get("/monthly/range")

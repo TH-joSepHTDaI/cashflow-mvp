@@ -27,7 +27,7 @@ def cleanup_transactions():
 
 def test_create_transaction():
     """Test creating a transaction."""
-    response = client.post("/api/transactions/", json={
+    response = client.post("/api/v1/transactions/", json={
         "amount": 100.50,
         "date": "2024-01-15",
         "note": "Grocery shopping",
@@ -48,7 +48,7 @@ def test_create_transaction():
 def test_list_transactions():
     """Test listing transactions."""
     # Create a transaction first
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 50.00,
         "date": "2024-01-20",
         "note": "Coffee",
@@ -56,7 +56,7 @@ def test_list_transactions():
         "cashflow_type": "expense"
     })
     
-    response = client.get("/api/transactions/")
+    response = client.get("/api/v1/transactions/")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -66,14 +66,14 @@ def test_list_transactions():
 def test_list_transactions_by_month():
     """Test filtering transactions by month."""
     # Create transactions for different months
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 100.00,
         "date": "2024-01-15",
         "note": "January expense",
         "category": "food",
         "cashflow_type": "expense"
     })
-    client.post("/api/transactions/", json={
+    client.post("/api/v1/transactions/", json={
         "amount": 200.00,
         "date": "2024-02-10",
         "note": "February expense",
@@ -82,7 +82,7 @@ def test_list_transactions_by_month():
     })
     
     # Filter by January
-    response = client.get("/api/transactions/?month=2024-01")
+    response = client.get("/api/v1/transactions/?month=2024-01")
     assert response.status_code == 200
     data = response.json()
     assert len(data) == 1
@@ -92,7 +92,7 @@ def test_list_transactions_by_month():
 def test_get_transaction():
     """Test getting a specific transaction."""
     # Create a transaction
-    create_response = client.post("/api/transactions/", json={
+    create_response = client.post("/api/v1/transactions/", json={
         "amount": 75.00,
         "date": "2024-01-25",
         "note": "Restaurant",
@@ -102,7 +102,7 @@ def test_get_transaction():
     transaction_id = create_response.json()["id"]
     
     # Get the transaction
-    response = client.get(f"/api/transactions/{transaction_id}")
+    response = client.get(f"/api/v1/transactions/{transaction_id}")
     assert response.status_code == 200
     data = response.json()
     assert data["id"] == transaction_id
@@ -111,7 +111,7 @@ def test_get_transaction():
 
 def test_get_transaction_not_found():
     """Test getting a non-existent transaction."""
-    response = client.get("/api/transactions/99999")
+    response = client.get("/api/v1/transactions/99999")
     assert response.status_code == 404
     assert response.json()["detail"] == "Transaction not found"
 
@@ -119,7 +119,7 @@ def test_get_transaction_not_found():
 def test_update_transaction():
     """Test updating a transaction."""
     # Create a transaction
-    create_response = client.post("/api/transactions/", json={
+    create_response = client.post("/api/v1/transactions/", json={
         "amount": 100.00,
         "date": "2024-01-15",
         "note": "Original note",
@@ -129,7 +129,7 @@ def test_update_transaction():
     transaction_id = create_response.json()["id"]
     
     # Update the transaction
-    response = client.put(f"/api/transactions/{transaction_id}", json={
+    response = client.put(f"/api/v1/transactions/{transaction_id}", json={
         "amount": 150.00,
         "note": "Updated note"
     })
@@ -143,7 +143,7 @@ def test_update_transaction():
 
 def test_update_transaction_not_found():
     """Test updating a non-existent transaction."""
-    response = client.put("/api/transactions/99999", json={
+    response = client.put("/api/v1/transactions/99999", json={
         "amount": 100.00
     })
     assert response.status_code == 404
@@ -152,7 +152,7 @@ def test_update_transaction_not_found():
 def test_delete_transaction():
     """Test deleting a transaction."""
     # Create a transaction
-    create_response = client.post("/api/transactions/", json={
+    create_response = client.post("/api/v1/transactions/", json={
         "amount": 50.00,
         "date": "2024-01-30",
         "note": "To be deleted",
@@ -162,17 +162,17 @@ def test_delete_transaction():
     transaction_id = create_response.json()["id"]
     
     # Delete the transaction
-    response = client.delete(f"/api/transactions/{transaction_id}")
+    response = client.delete(f"/api/v1/transactions/{transaction_id}")
     assert response.status_code == 204
     
     # Verify it's deleted
-    get_response = client.get(f"/api/transactions/{transaction_id}")
+    get_response = client.get(f"/api/v1/transactions/{transaction_id}")
     assert get_response.status_code == 404
 
 
 def test_delete_transaction_not_found():
     """Test deleting a non-existent transaction."""
-    response = client.delete("/api/transactions/99999")
+    response = client.delete("/api/v1/transactions/99999")
     assert response.status_code == 404
 
 
@@ -183,7 +183,7 @@ def test_delete_transaction_not_found():
 def test_create_transaction_missing_required_fields():
     """Test creating a transaction with missing required fields."""
     # Missing amount
-    response = client.post("/api/transactions/", json={
+    response = client.post("/api/v1/transactions/", json={
         "date": "2024-01-15",
         "note": "Missing amount",
         "category": "food",
@@ -192,7 +192,7 @@ def test_create_transaction_missing_required_fields():
     assert response.status_code == 422
     
     # Missing date
-    response = client.post("/api/transactions/", json={
+    response = client.post("/api/v1/transactions/", json={
         "amount": 100.00,
         "note": "Missing date",
         "category": "food",
@@ -201,7 +201,7 @@ def test_create_transaction_missing_required_fields():
     assert response.status_code == 422
     
     # Missing category
-    response = client.post("/api/transactions/", json={
+    response = client.post("/api/v1/transactions/", json={
         "amount": 100.00,
         "date": "2024-01-15",
         "note": "Missing category",
@@ -212,7 +212,7 @@ def test_create_transaction_missing_required_fields():
 
 def test_create_transaction_invalid_amount_type():
     """Test creating a transaction with invalid amount type (string instead of number)."""
-    response = client.post("/api/transactions/", json={
+    response = client.post("/api/v1/transactions/", json={
         "amount": "not_a_number",
         "date": "2024-01-15",
         "note": "Invalid amount type",
@@ -225,7 +225,7 @@ def test_create_transaction_invalid_amount_type():
 def test_create_transaction_invalid_date_format():
     """Test creating a transaction with invalid date formats."""
     # Invalid format
-    response = client.post("/api/transactions/", json={
+    response = client.post("/api/v1/transactions/", json={
         "amount": 100.00,
         "date": "15-01-2024",
         "note": "Invalid date format",
@@ -235,7 +235,7 @@ def test_create_transaction_invalid_date_format():
     assert response.status_code == 422
     
     # Another invalid format
-    response = client.post("/api/transactions/", json={
+    response = client.post("/api/v1/transactions/", json={
         "amount": 100.00,
         "date": "2024/01/15",
         "note": "Invalid date format",
@@ -247,7 +247,7 @@ def test_create_transaction_invalid_date_format():
 
 def test_create_transaction_negative_amount():
     """Test creating a transaction with negative amount."""
-    response = client.post("/api/transactions/", json={
+    response = client.post("/api/v1/transactions/", json={
         "amount": -50.00,
         "date": "2024-01-15",
         "note": "Negative amount transaction",
@@ -263,7 +263,7 @@ def test_create_transaction_future_date():
     from datetime import date, timedelta
     future_date = (date.today() + timedelta(days=30)).isoformat()
     
-    response = client.post("/api/transactions/", json={
+    response = client.post("/api/v1/transactions/", json={
         "amount": 100.00,
         "date": future_date,
         "note": "Future transaction",
@@ -277,7 +277,7 @@ def test_create_transaction_future_date():
 def test_create_transaction_malformed_json():
     """Test creating a transaction with malformed JSON body."""
     response = client.post(
-        "/api/transactions/",
+        "/api/v1/transactions/",
         data="not valid json",
         headers={"Content-Type": "application/json"}
     )
@@ -288,7 +288,7 @@ def test_create_transaction_very_long_note():
     """Test creating a transaction with very long note (> 500 chars)."""
     long_note = "A" * 1000
     
-    response = client.post("/api/transactions/", json={
+    response = client.post("/api/v1/transactions/", json={
         "amount": 100.00,
         "date": "2024-01-15",
         "note": long_note,
@@ -303,7 +303,7 @@ def test_create_transaction_very_long_note():
 def test_create_transaction_empty_string_values():
     """Test creating a transaction with empty string values."""
     # Empty category should fail (required field)
-    response = client.post("/api/transactions/", json={
+    response = client.post("/api/v1/transactions/", json={
         "amount": 100.00,
         "date": "2024-01-15",
         "note": "",
@@ -316,7 +316,7 @@ def test_create_transaction_empty_string_values():
 
 def test_create_transaction_null_optional_fields():
     """Test creating a transaction with null in optional fields."""
-    response = client.post("/api/transactions/", json={
+    response = client.post("/api/v1/transactions/", json={
         "amount": 100.00,
         "date": "2024-01-15",
         "note": None,
@@ -330,7 +330,7 @@ def test_create_transaction_null_optional_fields():
 def test_update_transaction_invalid_amount_type():
     """Test updating a transaction with invalid amount type."""
     # Create a transaction first
-    create_response = client.post("/api/transactions/", json={
+    create_response = client.post("/api/v1/transactions/", json={
         "amount": 100.00,
         "date": "2024-01-15",
         "note": "Original",
@@ -340,7 +340,7 @@ def test_update_transaction_invalid_amount_type():
     transaction_id = create_response.json()["id"]
     
     # Try to update with invalid amount
-    response = client.put(f"/api/transactions/{transaction_id}", json={
+    response = client.put(f"/api/v1/transactions/{transaction_id}", json={
         "amount": "invalid"
     })
     assert response.status_code == 422
@@ -349,7 +349,7 @@ def test_update_transaction_invalid_amount_type():
 def test_update_transaction_invalid_date_format():
     """Test updating a transaction with invalid date format."""
     # Create a transaction first
-    create_response = client.post("/api/transactions/", json={
+    create_response = client.post("/api/v1/transactions/", json={
         "amount": 100.00,
         "date": "2024-01-15",
         "note": "Original",
@@ -359,7 +359,7 @@ def test_update_transaction_invalid_date_format():
     transaction_id = create_response.json()["id"]
     
     # Try to update with invalid date
-    response = client.put(f"/api/transactions/{transaction_id}", json={
+    response = client.put(f"/api/v1/transactions/{transaction_id}", json={
         "date": "not-a-date"
     })
     assert response.status_code == 422

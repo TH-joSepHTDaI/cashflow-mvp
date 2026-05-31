@@ -17,8 +17,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Cashflow MVP",
-    description="A minimal personal cashflow bookkeeping app",
-    version="0.1.0",
+    description="A minimal personal cashflow bookkeeping app - API v1",
+    version="1.0.0",
     lifespan=lifespan
 )
 

@@ -6,7 +6,7 @@ from app.database import get_session
 from app.schemas import TransactionCreate, TransactionRead, TransactionUpdate
 from app.services import TransactionService
 
-router = APIRouter(prefix="/api/transactions", tags=["transactions"])
+router = APIRouter(prefix="/api/v1/transactions", tags=["transactions"])
 
 
 @router.post("/", response_model=TransactionRead, status_code=201)
