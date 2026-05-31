@@ -30,6 +30,7 @@ env/
 *.db
 *.sqlite
 *.sqlite3
+backend/data/cashflow.db
 
 # Environment variables
 .env
