@@ -11,27 +11,7 @@ Rules:
 """
 
 from app.models import CashflowType
-
-
-# Classification keywords mapped to cashflow types
-CLASSIFICATION_RULES = {
-    CashflowType.INCOME: [
-        "salary", "wage", "income", "工资", "收入", "薪水", "薪资"
-    ],
-    CashflowType.EXPENSE: [
-        # Fixed expenses
-        "rent", "mortgage", "房租", "房贷", "租金",
-        # Daily expenses
-        "food", "restaurant", "coffee", "supermarket",
-        "饭", "餐厅", "咖啡", "超市", "食物", "餐饮", "买菜"
-    ],
-    CashflowType.INVESTMENT: [
-        "fund", "etf", "stock", "基金", "股票", "定投", "投资"
-    ],
-    CashflowType.LIABILITY_REPAYMENT: [
-        "credit card", "loan repayment", "信用卡", "还款", "贷款", "还贷"
-    ]
-}
+from app.config import CLASSIFICATION_RULES
 
 
 def classify_transaction(note: str, category: str = "") -> CashflowType:
